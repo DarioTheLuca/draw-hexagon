@@ -36,6 +36,7 @@ class HexagonScreen extends StatelessWidget {
       ),
       body: Hexagon(
         screenWidth: screenWidth,
+        screenHeight: screenHeight,
       ),
     );
   }
@@ -45,10 +46,12 @@ class Hexagon extends StatelessWidget {
   const Hexagon({
     super.key,
     required this.screenWidth,
+    required this.screenHeight,
   });
 
   final double screenWidth;
-  double get diameter => screenWidth - 100;
+  final double screenHeight;
+  double get diameter => min(screenWidth, screenHeight) - 100;
   double get radius => diameter / 2;
 
   @override
@@ -77,7 +80,7 @@ class HexagonPainter extends CustomPainter {
       ..color = const Color.fromARGB(255, 4, 23, 32).withOpacity(0.5)
       ..strokeWidth = 1.0;
 
-    final center = Offset(size.width / 2, size.width / 2);
+    final center = Offset(size.width / 2, size.height / 2);
     final angleMul = [1, 3, 5, 7, 9, 11, 1];
     for (int j = 1; j < 6; j++) {
       for (int i = 0; i < angleMul.length - 1; i++) {
