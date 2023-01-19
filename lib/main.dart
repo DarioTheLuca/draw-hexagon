@@ -23,8 +23,31 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HexagonScreen extends StatelessWidget {
+class HexagonScreen extends StatefulWidget {
   const HexagonScreen({super.key});
+
+  @override
+  State<HexagonScreen> createState() => _HexagonScreenState();
+}
+
+class _HexagonScreenState extends State<HexagonScreen>
+    with TickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    duration: const Duration(seconds: 5),
+    vsync: this,
+  )..repeat(reverse: false);
+
+  late final Animation<double> _animation = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.linear,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -34,9 +57,14 @@ class HexagonScreen extends StatelessWidget {
         elevation: 0,
         backgroundColor: const Color.fromARGB(255, 23, 87, 197),
       ),
-      body: Hexagon(
-        screenWidth: screenWidth,
-        screenHeight: screenHeight,
+      body: Center(
+        child: RotationTransition(
+          turns: _animation,
+          child: Hexagon(
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
+          ),
+        ),
       ),
     );
   }
