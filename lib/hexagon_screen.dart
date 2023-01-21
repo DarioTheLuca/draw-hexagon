@@ -19,8 +19,9 @@ class _HexagonScreenState extends State<HexagonScreen>
     super.initState();
     _controller = AnimationController(
       duration: const Duration(seconds: 5),
+      reverseDuration: const Duration(seconds: 5),
       vsync: this,
-    )..forward();
+    );
   }
 
   late final Animation<double> _animation = CurvedAnimation(
@@ -43,8 +44,19 @@ class _HexagonScreenState extends State<HexagonScreen>
         elevation: 0,
         backgroundColor: const Color.fromARGB(255, 23, 87, 197),
       ),
-      body: BlocBuilder<RotateBloc, StateOfHexagon>(
-        builder: (context, count) {
+      body: BlocConsumer<RotateBloc, StateOfHexagon>(
+        listener: (context, hexagonState) {
+          if (hexagonState == StateOfHexagon.rotatingRight) {
+            _controller.repeat(reverse: false);
+          }
+          if (hexagonState == StateOfHexagon.rotatingLeft) {
+            _controller.reverse();
+          }
+          if (hexagonState == StateOfHexagon.idle) {
+            _controller.stop();
+          }
+        },
+        builder: (context, hexagonState) {
           return Center(
             child: RotationTransition(
               turns: _animation,
@@ -60,14 +72,37 @@ class _HexagonScreenState extends State<HexagonScreen>
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          FloatingActionButton(
-            child: const Icon(Icons.add),
-            onPressed: () => context.read<RotateBloc>().increment(),
+          SizedBox(
+            width: 60,
+            height: 60,
+            child: FloatingActionButton(
+              child: const Text("Rotate"),
+              onPressed: () =>
+                  context.read<RotateBloc>().add(RotateRightPressed()),
+            ),
           ),
           const SizedBox(height: 4),
-          FloatingActionButton(
-            child: const Icon(Icons.remove),
-            onPressed: () => context.read<RotateBloc>().decrement(),
+          SizedBox(
+            width: 60,
+            height: 60,
+            child: FloatingActionButton(
+              child: const Text("Stop"),
+              onPressed: () =>
+                  context.read<RotateBloc>().add(RotateStopPressed()),
+            ),
+          ),
+          const SizedBox(height: 4),
+          SizedBox(
+            width: 60,
+            height: 60,
+            child: FloatingActionButton(
+              child: const Text(
+                "Reverse",
+                textAlign: TextAlign.center,
+              ),
+              onPressed: () =>
+                  context.read<RotateBloc>().add(RotateLeftPressed()),
+            ),
           ),
         ],
       ),
