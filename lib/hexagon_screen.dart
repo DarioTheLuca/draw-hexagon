@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import './hexagon.dart';
+import 'bloc/rotate_bloc.dart';
 
 class HexagonScreen extends StatefulWidget {
   const HexagonScreen({super.key});
@@ -41,14 +43,33 @@ class _HexagonScreenState extends State<HexagonScreen>
         elevation: 0,
         backgroundColor: const Color.fromARGB(255, 23, 87, 197),
       ),
-      body: Center(
-        child: RotationTransition(
-          turns: _animation,
-          child: Hexagon(
-            screenWidth: screenWidth,
-            screenHeight: screenHeight,
+      body: BlocBuilder<RotateBloc, StateOfHexagon>(
+        builder: (context, count) {
+          return Center(
+            child: RotationTransition(
+              turns: _animation,
+              child: Hexagon(
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+              ),
+            ),
+          );
+        },
+      ),
+      floatingActionButton: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          FloatingActionButton(
+            child: const Icon(Icons.add),
+            onPressed: () => context.read<RotateBloc>().increment(),
           ),
-        ),
+          const SizedBox(height: 4),
+          FloatingActionButton(
+            child: const Icon(Icons.remove),
+            onPressed: () => context.read<RotateBloc>().decrement(),
+          ),
+        ],
       ),
     );
   }

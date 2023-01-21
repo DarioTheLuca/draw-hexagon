@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import './hexagon_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'bloc/rotate_bloc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +18,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HexagonScreen(),
+      home: BlocProvider(
+        create: (_) => RotateBloc(),
+        child: const HexagonScreen(),
+      ),
       debugShowCheckedModeBanner: false,
     );
   }
