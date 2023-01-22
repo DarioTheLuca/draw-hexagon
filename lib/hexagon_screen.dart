@@ -21,7 +21,11 @@ class _HexagonScreenState extends State<HexagonScreen>
       duration: const Duration(seconds: 5),
       reverseDuration: const Duration(seconds: 5),
       vsync: this,
-    );
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.dismissed) {
+          _controller.reverse(from: 1);
+        }
+      });
   }
 
   late final Animation<double> _animation = CurvedAnimation(
@@ -39,6 +43,7 @@ class _HexagonScreenState extends State<HexagonScreen>
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    List<StateOfHexagon?> listOfStates = [];
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -50,11 +55,17 @@ class _HexagonScreenState extends State<HexagonScreen>
             _controller.repeat(reverse: false);
           }
           if (hexagonState == StateOfHexagon.rotatingLeft) {
-            _controller.reverse();
+            if (listOfStates.isEmpty) {
+              _controller.reverse(from: 1);
+            } else {
+              _controller.reverse();
+            }
           }
           if (hexagonState == StateOfHexagon.idle) {
             _controller.stop();
           }
+          listOfStates.add(hexagonState);
+          // print("states: $listOfStates");
         },
         builder: (context, hexagonState) {
           return Center(
