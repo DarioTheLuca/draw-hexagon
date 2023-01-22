@@ -13,6 +13,7 @@ class HexagonScreen extends StatefulWidget {
 class _HexagonScreenState extends State<HexagonScreen>
     with TickerProviderStateMixin {
   late final AnimationController _controller;
+  List<StateOfHexagon?> listOfStates = [];
 
   @override
   void initState() {
@@ -22,7 +23,9 @@ class _HexagonScreenState extends State<HexagonScreen>
       reverseDuration: const Duration(seconds: 5),
       vsync: this,
     )..addStatusListener((status) {
-        if (status == AnimationStatus.dismissed) {
+        print("status : $status");
+        if (status == AnimationStatus.dismissed &&
+            listOfStates.last != StateOfHexagon.reset) {
           _controller.reverse(from: 1);
         }
       });
@@ -43,7 +46,6 @@ class _HexagonScreenState extends State<HexagonScreen>
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    List<StateOfHexagon?> listOfStates = [];
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -52,19 +54,31 @@ class _HexagonScreenState extends State<HexagonScreen>
       body: BlocConsumer<RotateBloc, StateOfHexagon>(
         listener: (context, hexagonState) {
           if (hexagonState == StateOfHexagon.rotatingRight) {
-            _controller.repeat(reverse: false);
+            listOfStates.add(hexagonState);
+            _controller.repeat(reverse: false); //AnimationStatus to forward
           }
           if (hexagonState == StateOfHexagon.rotatingLeft) {
             if (listOfStates.isEmpty) {
-              _controller.reverse(from: 1);
+              listOfStates.add(hexagonState);
+              _controller.reverse(
+                  from:
+                      1); //AnimationStatus to completed and right after to reverse
             } else {
-              _controller.reverse();
+              listOfStates.add(hexagonState);
+              _controller
+                  .reverse(); // set AnimationStatus to "reverse" and when finish to "dismissed"
             }
           }
           if (hexagonState == StateOfHexagon.idle) {
-            _controller.stop();
+            listOfStates.add(hexagonState);
+            _controller.stop(); // don't modify the AnimationStatus
           }
-          listOfStates.add(hexagonState);
+          if (hexagonState == StateOfHexagon.reset) {
+            listOfStates.add(hexagonState);
+            _controller.reset(); //set the AnimationStatus to dismiss
+            _controller.forward(
+                from: 1); // to set the AnimationStatus to completed
+          }
           // print("states: $listOfStates");
         },
         builder: (context, hexagonState) {
@@ -113,6 +127,20 @@ class _HexagonScreenState extends State<HexagonScreen>
               ),
               onPressed: () =>
                   context.read<RotateBloc>().add(RotateLeftPressed()),
+            ),
+          ),
+          const SizedBox(height: 4),
+          SizedBox(
+            width: 60,
+            height: 60,
+            child: FloatingActionButton(
+              child: const Text(
+                "Reset",
+                textAlign: TextAlign.center,
+              ),
+              onPressed: () {
+                context.read<RotateBloc>().add(RotateResetPressed());
+              },
             ),
           ),
         ],
